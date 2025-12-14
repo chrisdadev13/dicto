@@ -19,6 +19,21 @@ Dicto is an intelligent voice dictation app that transcribes your voice and auto
 - **Custom dictionary** — Add technical terms and proper nouns for accurate transcription
 - **Text shortcuts** — Create abbreviations that expand into full phrases
 
+## Privacy First Dicto is designed with privacy at its core. 
+<p align="center">
+  <img width="761" height="519" alt="Screenshot 2025-12-14 at 5 12 53 PM" src="https://github.com/user-attachments/assets/42cf5894-277c-486d-b174-a0b2746be529" />
+</p>
+
+Choose between two transcription modes: 
+| Mode | Engine | Privacy | Speed | Accuracy | 
+|------|--------|---------|-------|----------| 
+| **Local** | Whisper Small | ✅ Fully offline | Fast | High | 
+| **Cloud** | Deepgram Nova-3 | Encrypted | Real-time | Very High | 
+
+**Local mode** uses OpenAI's Whisper Small model running entirely on your device. No internet connection required, no data sent anywhere. Your voice stays on your machine. 
+
+**Cloud mode** offers real-time streaming transcription via Deepgram for users who prefer speed over complete privacy.
+
 ## Installation
 
 - [macOS](https://dicto.app/download) (coming soon)
