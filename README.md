@@ -19,6 +19,8 @@ Dicto is an intelligent voice dictation app that transcribes your voice and auto
 - **Custom dictionary** — Add technical terms and proper nouns for accurate transcription
 - **Text shortcuts** — Create abbreviations that expand into full phrases
 
+https://github.com/user-attachments/assets/50cf7763-f649-49ef-8da3-f5e576b3da5e
+
 ## Privacy First Dicto is designed with privacy at its core. 
 <p align="center">
   <img width="761" height="519" alt="Screenshot 2025-12-14 at 5 12 53 PM" src="https://github.com/user-attachments/assets/42cf5894-277c-486d-b174-a0b2746be529" />
