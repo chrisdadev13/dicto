@@ -58,8 +58,6 @@ const app = new Elysia()
 
 			const { category, style, appName, text } = body;
 
-			console.log("Request body:", body);
-
 			// Build the system prompt server-side
 			const systemPrompt = buildSystemPrompt(
 				category as Category,
@@ -67,16 +65,12 @@ const app = new Elysia()
 				appName,
 			);
 
-			console.log(systemPrompt);
-
 			const result = await generateText({
 				model: groq("llama-3.1-8b-instant"),
 				system: systemPrompt,
 				prompt: text,
 				temperature: 0.1,
 			});
-
-			console.log(result);
 
 			return { formattedText: result.text };
 		},
