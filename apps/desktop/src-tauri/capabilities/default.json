@@ -1,0 +1,42 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": [
+    "main",
+    "widget"
+  ],
+  "permissions": [
+    "core:default",
+    "opener:default",
+    {
+      "identifier": "http:default",
+      "allow": [{ "url": "https://dicto-ai-server.vercel.app" }],
+      "deny": [{ "url": "https://private.tauri.app" }]
+    },
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        {
+          "url": "x-apple.systempreferences:*"
+        },
+        {
+          "url": "ms-settings:*"
+        }
+      ]
+    },
+    "macos-permissions:default",
+    "macos-permissions:allow-check-microphone-permission",
+    "macos-permissions:allow-request-microphone-permission",
+    "macos-permissions:allow-check-accessibility-permission",
+    "macos-permissions:allow-request-accessibility-permission",
+    "shell:default",
+    "shell:allow-open",
+    "core:window:default",
+    "core:window:allow-start-dragging",
+    "store:allow-load",
+    "store:default",
+    "sql:default",
+    "sql:allow-execute"
+  ]
+}

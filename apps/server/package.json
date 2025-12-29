@@ -1,0 +1,25 @@
+{
+  "name": "@dicto_monorepo/server",
+  "type": "module",
+  "version": "1.0.50",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch src/index.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/groq": "^3.0.1",
+    "@elysiajs/cors": "^1.4.0",
+    "@neondatabase/serverless": "^1.0.2",
+    "ai": "^6.0.3",
+    "better-auth": "^1.4.9",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.45.1",
+    "elysia": "latest"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "drizzle-kit": "^0.31.8",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
