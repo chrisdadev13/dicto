@@ -54,6 +54,7 @@ export function EmailSignIn({ onStepChange }: EmailSignInProps) {
 	const [mode, setMode] = useState<Mode>("signin");
 	const [step, setStep] = useState<Step>("credentials");
 	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 
 	// Notify parent when step changes
@@ -94,6 +95,7 @@ export function EmailSignIn({ onStepChange }: EmailSignInProps) {
 				onError: async (ctx) => {
 					if (ctx.error.code === "EMAIL_NOT_VERIFIED") {
 						setEmail(data.email);
+						setPassword(data.password);
 						const { error: otpError } =
 							await authClient.emailOtp.sendVerificationOtp({
 								email: data.email,
@@ -119,6 +121,7 @@ export function EmailSignIn({ onStepChange }: EmailSignInProps) {
 	const handleSignUp = async (data: z.infer<typeof signUpSchema>) => {
 		setIsLoading(true);
 		setEmail(data.email);
+		setPassword(data.password);
 
 		// Sign up the user (server sends OTP automatically via sendVerificationOnSignUp)
 		const { error } = await authClient.signUp.email({
@@ -141,7 +144,8 @@ export function EmailSignIn({ onStepChange }: EmailSignInProps) {
 	const handleOTPComplete = async (otp: string) => {
 		setIsLoading(true);
 
-		const { error } = await authClient.signIn.emailOtp({
+		// Verify email with OTP
+		const { error } = await authClient.emailOtp.verifyEmail({
 			email,
 			otp,
 		});
@@ -152,9 +156,30 @@ export function EmailSignIn({ onStepChange }: EmailSignInProps) {
 			return;
 		}
 
-		toast.success("Email verified! Welcome to Dicto!");
-		setIsLoading(false);
-		navigate({ to: "/onboarding" });
+		// Auto sign-in after successful verification
+		await authClient.signIn.email(
+			{ email, password },
+			{
+				onSuccess: async (ctx) => {
+					const authToken = ctx.response.headers.get("set-auth-token");
+					if (authToken) {
+						await setToken(authToken);
+					}
+					toast.success("Email verified! Welcome to Dicto!");
+					setPassword("");
+					setIsLoading(false);
+					navigate({ to: "/onboarding" });
+				},
+				onError: () => {
+					toast.error(
+						"Verification successful but sign-in failed. Please try signing in.",
+					);
+					setPassword("");
+					setIsLoading(false);
+					setStep("credentials");
+				},
+			},
+		);
 	};
 
 	const toggleMode = () => {
