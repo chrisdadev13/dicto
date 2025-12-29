@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "@tanstack/react-router";
 import { Loader } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -26,6 +26,10 @@ import { setToken } from "@/lib//auth-client";
 type Mode = "signin" | "signup";
 type Step = "credentials" | "otp";
 
+interface EmailSignInProps {
+	onStepChange?: (step: Step) => void;
+}
+
 // Form schemas
 const signInSchema = z.object({
 	email: z.email("Invalid email address"),
@@ -44,13 +48,18 @@ const signUpSchema = z.object({
 	name: z.string().min(1, "Name is required"),
 });
 
-export function EmailSignIn() {
+export function EmailSignIn({ onStepChange }: EmailSignInProps) {
 	const navigate = useNavigate();
 
 	const [mode, setMode] = useState<Mode>("signin");
 	const [step, setStep] = useState<Step>("credentials");
 	const [email, setEmail] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+
+	// Notify parent when step changes
+	useEffect(() => {
+		onStepChange?.(step);
+	}, [step, onStepChange]);
 
 	// Sign in form
 	const signInForm = useForm<z.infer<typeof signInSchema>>({
@@ -111,7 +120,7 @@ export function EmailSignIn() {
 		setIsLoading(true);
 		setEmail(data.email);
 
-		// Sign up the user
+		// Sign up the user (server sends OTP automatically via sendVerificationOnSignUp)
 		const { error } = await authClient.signUp.email({
 			email: data.email,
 			password: data.password,
@@ -120,18 +129,6 @@ export function EmailSignIn() {
 
 		if (error) {
 			toast.error("Failed to create account. Please try again.");
-			setIsLoading(false);
-			return;
-		}
-
-		// Send OTP
-		const { error: otpError } = await authClient.emailOtp.sendVerificationOtp({
-			email: data.email,
-			type: "sign-in",
-		});
-
-		if (otpError) {
-			toast.error("Failed to send verification code. Please try again.");
 			setIsLoading(false);
 			return;
 		}

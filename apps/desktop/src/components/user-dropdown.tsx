@@ -24,6 +24,19 @@ import { DictoLogo } from "@/components/dicto-logo";
 export function UserDropdown() {
 	const session = authClient.useSession();
 	const [showAuthDialog, setShowAuthDialog] = useState(false);
+	const [authStep, setAuthStep] = useState<"credentials" | "otp">("credentials");
+
+	// Handle dialog close - prevent closing during OTP step
+	const handleDialogChange = (open: boolean) => {
+		if (!open && authStep === "otp") {
+			// Don't close if in OTP step
+			return;
+		}
+		setShowAuthDialog(open);
+		if (!open) {
+			setAuthStep("credentials");
+		}
+	};
 
 	if (session.isPending) {
 		return <Skeleton className="size-8 rounded-sm border border-gray-300" />;
@@ -42,7 +55,7 @@ export function UserDropdown() {
 					Login
 				</Button>
 
-				<Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+				<Dialog open={showAuthDialog} onOpenChange={handleDialogChange}>
 					<DialogContent className="max-w-md bg-white">
 						<DialogHeader>
 							<div className="mx-auto mb-2">
@@ -55,7 +68,7 @@ export function UserDropdown() {
 								Sign in to unlock cloud mode and smart features
 							</p>
 						</DialogHeader>
-						<EmailSignIn />
+						<EmailSignIn onStepChange={setAuthStep} />
 					</DialogContent>
 				</Dialog>
 			</>
