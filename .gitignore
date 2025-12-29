@@ -49,4 +49,4 @@ coverage
 tmp
 temp
 .vercel
-apps/desktop
+/apps/desktop
