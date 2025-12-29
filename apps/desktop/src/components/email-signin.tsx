@@ -82,7 +82,24 @@ export function EmailSignIn() {
 					}
 					setIsLoading(false);
 				},
-				onError: (ctx) => {
+				onError: async (ctx) => {
+					if (ctx.error.code === "EMAIL_NOT_VERIFIED") {
+						setEmail(data.email);
+						const { error: otpError } =
+							await authClient.emailOtp.sendVerificationOtp({
+								email: data.email,
+								type: "email-verification",
+							});
+						if (otpError) {
+							toast.error("Failed to send verification code.");
+							setIsLoading(false);
+							return;
+						}
+						toast.info("Please verify your email first");
+						setStep("otp");
+						setIsLoading(false);
+						return;
+					}
 					toast.error(ctx.error.message);
 					setIsLoading(false);
 				},
