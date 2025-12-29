@@ -2,6 +2,7 @@ use rdev::{listen, Event, EventType, Key};
 use std::collections::HashSet;
 use std::sync::{Arc, Mutex, OnceLock};
 use std::thread;
+use std::time::Instant;
 use tauri::{App, AppHandle, Emitter};
 use tauri_nspanel::ManagerExt;
 use tauri_plugin_store::{JsonValue, StoreExt};
@@ -15,6 +16,10 @@ const DICTO_GLOBAL_SHORTCUT: &str = "dicto_global_shortcut";
 /// Default shortcut - FN key
 const DEFAULT_SHORTCUT: &str = "fn";
 
+/// Maximum time a shortcut can be active before auto-reset (5 seconds)
+/// This prevents stuck state when key release events are missed (common with FN key)
+const SHORTCUT_TIMEOUT_SECS: u64 = 5;
+
 /// Global state for the keyboard listener
 static SHORTCUT_STATE: OnceLock<Arc<Mutex<ShortcutState>>> = OnceLock::new();
 
@@ -22,6 +27,7 @@ struct ShortcutState {
     target_keys: Vec<Key>,
     pressed_keys: HashSet<Key>,
     shortcut_active: bool,
+    activated_at: Option<Instant>,
 }
 
 /// Set shortcut during application startup
@@ -54,6 +60,7 @@ pub fn enable_shortcut(app: &App) {
         target_keys,
         pressed_keys: HashSet::new(),
         shortcut_active: false,
+        activated_at: None,
     }));
 
     SHORTCUT_STATE.set(state.clone()).ok();
@@ -74,6 +81,18 @@ fn start_listener(app: AppHandle) {
 
         match event.event_type {
             EventType::KeyPress(key) => {
+                // Check if shortcut is stuck (active for too long without release)
+                if state.shortcut_active {
+                    if let Some(activated_at) = state.activated_at {
+                        if activated_at.elapsed().as_secs() > SHORTCUT_TIMEOUT_SECS {
+                            println!("⚠️ Shortcut stuck for >{}s, auto-resetting", SHORTCUT_TIMEOUT_SECS);
+                            state.shortcut_active = false;
+                            state.activated_at = None;
+                            state.pressed_keys.clear();
+                        }
+                    }
+                }
+
                 state.pressed_keys.insert(key);
 
                 // Check if all target keys are pressed
@@ -85,6 +104,7 @@ fn start_listener(app: AppHandle) {
                         .all(|k| state.pressed_keys.contains(k))
                 {
                     state.shortcut_active = true;
+                    state.activated_at = Some(Instant::now());
                     println!("🔔 Shortcut activated! Emitting start-listening");
                     emit_event(&app, "start-listening");
                 }
@@ -95,6 +115,7 @@ fn start_listener(app: AppHandle) {
                 // Check if any target key was released
                 if state.shortcut_active && state.target_keys.contains(&key) {
                     state.shortcut_active = false;
+                    state.activated_at = None;
                     println!("🔔 Shortcut released! Emitting stop-listening");
                     emit_event(&app, "stop-listening");
                 }
@@ -255,6 +276,7 @@ pub fn change_shortcut(app: tauri::AppHandle, key: String) -> Result<(), String>
         let mut state = state.lock().unwrap();
         state.target_keys = parse_shortcut(&key);
         state.shortcut_active = false;
+        state.activated_at = None;
         state.pressed_keys.clear();
         println!("✅ Shortcut updated to: {:?}", state.target_keys);
     }
@@ -270,6 +292,7 @@ pub fn unregister_shortcut(_app: tauri::AppHandle) -> Result<(), String> {
         let mut state = state.lock().unwrap();
         state.target_keys.clear();
         state.shortcut_active = false;
+        state.activated_at = None;
         state.pressed_keys.clear();
         println!("✅ Shortcut unregistered");
     }
