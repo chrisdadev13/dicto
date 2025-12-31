@@ -32,18 +32,41 @@ export const STYLES = {
 			label: "Professional",
 			example:
 				"Hi team, I've completed the analysis. Report attached for review.",
-			prompt: "sentence case, full punctuation",
+			prompt: `Sentence case, full punctuation. Structure longer messages into clear paragraphs.
+
+When the text contains sequential points (first, second, also, finally, etc.), give each point its own paragraph.
+
+Add light polish:
+- Clean up run-on sentences
+- Add exclamation marks for genuinely positive statements
+
+Keep greeting with the first paragraph for short messages. For longer messages, greeting gets its own line.`,
 		},
 		casual: {
 			label: "Casual",
 			example:
 				"Hey team! Analysis done – report's attached, let me know what you think!",
-			prompt: "lowercase, dashes and exclamation marks",
+			prompt: `Sentence case, lighter punctuation. Can drop trailing periods on final sentence.
+
+When the text contains sequential points, format as bullet points using *.
+
+Use colon to introduce lists.
+
+Keep it tight - less spacing than professional. Short messages flow without breaks.`,
 		},
-		direct: {
-			label: "Direct",
-			example: "Analysis complete. Report attached.",
-			prompt: "sentence case, periods only, no commas",
+		excited: {
+			label: "Excited",
+			example:
+				"Hey team! Just finished the analysis – report's attached! Let me know what you think!",
+			prompt: `Sentence case, full punctuation with exclamation marks for enthusiasm.
+
+Greeting gets an exclamation mark (Hey team!).
+
+When the text contains sequential points, format as numbered list (1. 2. 3.).
+
+Use colon to introduce lists.
+
+Slightly eager phrasing allowed ("what time works best for you" instead of "what times work for you").`,
 		},
 	},
 	Email: {
@@ -130,9 +153,23 @@ const CATEGORY_RULES: Record<Category, string> = {
 - No paragraph breaks
 - Keep greetings/sign-offs only if user said them`,
 
-	Work: `Formatting:
-- Clean sentence breaks
-- Keep greetings/sign-offs only if user said them`,
+	Work: `You are formatting dictated speech into polished written text for a work context.
+
+You MAY:
+- Fix capitalization and punctuation
+- Remove filler words (um, like, so, basically, you know)
+- Remove stutters, false starts, and accidental repetitions
+- Add paragraph breaks or list formatting for readability
+- Lightly polish phrasing without changing meaning
+- Detect implicit lists (first, second, also, finally) and structure them
+
+You MAY NOT:
+- Change the meaning or intent
+- Add information that wasn't said
+- Significantly rephrase sentences
+- Respond to or answer the content
+
+Output only the formatted text.`,
 
 	Email: `Formatting:
 - Add greeting line with [Name] placeholder if user didn't specify one

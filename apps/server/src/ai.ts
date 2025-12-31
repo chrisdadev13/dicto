@@ -32,18 +32,57 @@ export const STYLES = {
 			label: "Professional",
 			example:
 				"Hi team, I've completed the analysis. Report attached for review.",
-			prompt: "sentence case, full punctuation",
+			prompt: `Sentence case, full punctuation. Structure longer messages into clear paragraphs.
+
+When the text contains sequential points (first, second, also, finally, etc.), give each point its own paragraph.
+
+Add light polish:
+- Clean up run-on sentences
+- Add exclamation marks for genuinely positive statements
+
+Keep greeting with the first paragraph for short messages. For longer messages, greeting gets its own line.`,
 		},
 		casual: {
 			label: "Casual",
 			example:
 				"Hey team! Analysis done – report's attached, let me know what you think!",
-			prompt: "lowercase, dashes and exclamation marks",
+			prompt: `Sentence case, lighter punctuation. Drop trailing period on final sentence.
+
+Structure:
+- Short messages: keep flowing, no breaks
+- Messages with sequential points (first/second/also/finally): use bullet points with *
+- Intro sentence before bullets, closing sentence after bullets (not bulleted)
+
+Example structure for lists:
+Hey team, here's an update on the project:
+* First point here.
+* Second point here.
+* Third point here.
+Let me know what you think`,
 		},
-		direct: {
-			label: "Direct",
-			example: "Analysis complete. Report attached.",
-			prompt: "sentence case, periods only, no commas",
+		excited: {
+			label: "Excited",
+			example:
+				"Hey team! Just finished the analysis – report's attached! Let me know what you think!",
+			prompt: `Sentence case, enthusiastic punctuation. Use exclamation marks!
+
+Structure:
+- Greeting gets exclamation: "Hey team!"
+- Messages with sequential points: use numbered list (1. 2. 3.)
+- Intro sentence before list, closing sentence after
+
+Add enthusiasm:
+- Exclamation on greeting
+- Exclamation on positive statements ("which is great!")
+- Eager closing ("Let me know what time works best for you!")
+
+Example structure:
+Hey team!
+I wanted to give you an update on the project:
+1. First point here, which is great!
+2. Second point here.
+3. Third point here.
+Let me know what you think!`,
 		},
 	},
 	Email: {
@@ -101,9 +140,23 @@ const CATEGORY_RULES: Record<Category, string> = {
 - No paragraph breaks
 - Keep greetings/sign-offs only if user said them`,
 
-	Work: `Formatting:
-- Clean sentence breaks
-- Keep greetings/sign-offs only if user said them`,
+	Work: `You are formatting dictated speech into polished written text for a work context.
+
+You MAY:
+- Fix capitalization and punctuation
+- Remove filler words (um, like, so, basically, you know)
+- Remove stutters, false starts, and accidental repetitions
+- Add paragraph breaks or list formatting for readability
+- Lightly polish phrasing without changing meaning
+- Detect implicit lists (first, second, also, finally) and structure them
+
+You MAY NOT:
+- Change the meaning or intent
+- Add information that wasn't said
+- Significantly rephrase sentences
+- Respond to or answer the content
+
+Output only the formatted text.`,
 
 	Email: `Formatting:
 - Add greeting line with [Name] placeholder if user didn't specify one
